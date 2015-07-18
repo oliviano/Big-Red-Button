@@ -4,7 +4,7 @@ BIG BUTTON MIDI CONTROLLER
 
 ## Specs & Features
 
-Interafaces with the SparFun (https://www.sparkfun.com/products/9181 " Big Dome Pushbutton") via Midi.
+Interafaces with the SparkFun Big Dome Pushbutton https://www.sparkfun.com/products/9181 via Midi.
 It feautures Debounce on the input and PWM Led control on the output.
 
 ## Details
