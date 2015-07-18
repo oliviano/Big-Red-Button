@@ -1,6 +1,9 @@
-/* Rythmo Pole Midi Controller - for Teensy v3.1 Based on Teensy Midi example.
-v5 _ Debounce At 100 | New Startup Sequence _| removed comments 
-BY Olivier Jean
+/* BIG RED BUTTON Midi Controller - f
+or Teensy v3.1 Based on Teensy Midi example.
+v2 _ Debounce At 80 | New Startup Sequence _|
+
+By Olivier Jean for Perceptual Engineering
+
 */
 
 #include <Bounce.h>
@@ -14,33 +17,26 @@ const int channel = 5;
 // it makes detecting changes very simple.
 // Default is 5ms changed to 80ms 
 
-Bounce button2 = Bounce(2, 100);
-Bounce button3 = Bounce(3, 100);
-Bounce button4 = Bounce(4, 100); 
-Bounce button5 = Bounce(5, 100);
+Bounce button4 = Bounce(4, 80);  // small button
+Bounce button5 = Bounce(5, 150);  // big red button
 
 const int ledPin = 13; // onnboard led
-const int led1 = 20; // pad 1
-const int led2 = 21; // pad 2
-const int led3 = 22; // pad 3
-const int led4 = 23; // pad 4
+const int led1 = 14; // pad 1
+const int led2 = 15; // pad 2
+
 
 void setup() {
   
 // Initialize button Pins 
-pinMode(0, INPUT_PULLUP);
-pinMode(1, INPUT_PULLUP);
-pinMode(2, INPUT_PULLUP);
-pinMode(3, INPUT_PULLUP);
-pinMode(4, INPUT_PULLUP);
-pinMode(5, INPUT_PULLUP);
+
+pinMode(4, INPUT_PULLUP); // Button 1 ( toggle switch always open )
+pinMode(5, INPUT_PULLUP); // Button 2 ( Big RED ONE ( always closed ) )
  
 // Initialize LED's
-pinMode(13, OUTPUT);
+pinMode(ledPin, OUTPUT);
 pinMode(led1, OUTPUT);
 pinMode(led2, OUTPUT);
-pinMode(led3, OUTPUT);
-pinMode(led4, OUTPUT);
+
  
  // Startup blink of LED's to signal all is good
      // Quick Loop on diagnostic LED
@@ -50,12 +46,29 @@ pinMode(led4, OUTPUT);
   digitalWrite(ledPin, LOW);    
   delay(1000);
  }
-  for ( int i = 1; i < 5; i++){
-  digitalWrite(ledPin, HIGH);   // set the LED on
-  delay(500);                  // wait for a second
-  digitalWrite(ledPin, LOW);    // set the LED off
-  delay(500);
- }
+
+// Fancy LED chase :)
+for (int i=0; i<3; i++){
+  for(int i=0;i<12;i++){  // increment automatically from 0 to 15 
+    int a=i%2;      // calculate LSB   
+    int b=i/2 %2;     
+    int c=i/4 %2;        
+    int d=i/8 %2;  //claculate MSB
+    digitalWrite(led1,d);   //write MSB
+    digitalWrite(led2,c);   
+    digitalWrite(led1,b);    
+    digitalWrite(led2,a);  // write LSB  
+    delay(100);     // wait for a second  
+    }
+  digitalWrite(ledPin, HIGH);
+  digitalWrite(led1, HIGH);  // turn the LED on (HIGH is the voltage level)
+  digitalWrite(led2, HIGH);  // turn the LED on (HIGH is the voltage level)
+  delay(500);               // wait for a second
+  digitalWrite(ledPin, LOW);
+  digitalWrite(led1, LOW);  // turn the LED off by making the voltage LOW
+  digitalWrite(led2, LOW);  // turn the LED off by making the voltage LOW
+  delay(500); 
+  }  
 }
 
 // MAIN PROGRAM ----- 
@@ -64,8 +77,7 @@ void loop() {
   // Update all the buttons.  There should not be any long
   // delays in loop(), so this runs repetitively at a rate
   // faster than the buttons could be pressed and released.
-  button2.update();
-  button3.update();
+
   button4.update();
   button5.update();
 
@@ -75,30 +87,19 @@ void loop() {
   // falling = high (not pressed - voltage from pullup resistor)
   //           to low (pressed - button connects pin to ground)
  
-  if (button2.fallingEdge()) {
-    usbMIDI.sendNoteOn(62, 99, channel);  // 62 = D4
-    digitalWrite(ledPin, HIGH);
-    digitalWrite(led1, HIGH);
 
-  }
-  if (button3.fallingEdge()) {
-    usbMIDI.sendNoteOn(63, 99, channel);  // 63 = D#4
-    digitalWrite(ledPin, HIGH);
-    digitalWrite(led2, HIGH);  
-
-  }
-  if (button4.fallingEdge()) {
-    usbMIDI.sendNoteOn(64, 99, channel);  // 63 = E4
-    digitalWrite(ledPin, HIGH);
-    digitalWrite(led3, HIGH);  
-
-  }
-  if (button5.fallingEdge()) {
+if (button4.fallingEdge()) {
+    usbMIDI.sendNoteOff(64, 00, channel);  // 63 = E4
+    digitalWrite(ledPin, LOW);
+    digitalWrite(led1, LOW);  
+    }
+  
+if (button5.fallingEdge()) {
     usbMIDI.sendNoteOn(65, 99, channel);  // 65 = F4
     digitalWrite(ledPin, HIGH);
-    digitalWrite(led4, HIGH); 
-
-  }
+    digitalWrite(led2, HIGH); 
+    }
+  
 
 
   // Check each button for "rising" edge
@@ -108,27 +109,16 @@ void loop() {
   // rising = low (pressed - button connects pin to ground)
   //          to high (not pressed - voltage from pullup resistor)
 
-  if (button2.risingEdge()) {
-    usbMIDI.sendNoteOff(62, 0, channel);  // 62 = D4
-    digitalWrite(ledPin, LOW);
-    digitalWrite(led1, LOW);
-  }
-  if (button3.risingEdge()) {
-    usbMIDI.sendNoteOff(63, 0, channel);  // 63 = D#4
-    digitalWrite(ledPin, LOW);
-    digitalWrite(led2, LOW);
-
-  }
-    if (button4.risingEdge()) {
-    usbMIDI.sendNoteOff(64, 0, channel);  // 63 = E4
-    digitalWrite(ledPin, LOW);
-    digitalWrite(led3, LOW);
+  if (button4.risingEdge()) {
+    usbMIDI.sendNoteOn(64, 99, channel);  // 63 = E4
+    digitalWrite(ledPin, HIGH);
+    digitalWrite(led1, HIGH);
 
   }
   if (button5.risingEdge()) {
     usbMIDI.sendNoteOff(65, 0, channel);  // 65 = F4
     digitalWrite(ledPin, LOW);
-    digitalWrite(led4, LOW); 
+    digitalWrite(led2, LOW); 
   }
 
 
