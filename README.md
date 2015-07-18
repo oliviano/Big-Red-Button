@@ -1,6 +1,6 @@
 BIG BUTTON MIDI CONTROLLER
 ======
-**BIG BUTTON MIDI CONTROLLER** is a midi controller utilizing the teensy 3.1 to receive triggers via Midi, and control the built in LED via midi from host.
+**BIG BUTTON MIDI CONTROLLER** is a simple midi controller utilizing the teensy 3.1 to interface between the Host computer as a Midi device and Illuminated Push Button
 
 ## Specs & Features
 
